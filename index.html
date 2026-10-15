@@ -1,171 +1,1058 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
-  <style>
-    :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --card-border: #334155;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-hover: #0284c7;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min Dashboard</title>
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #26354d;
+            --bg-input: #0b1120;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0284c7;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #334155;
+            --radius: 12px;
+        }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 20px;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
 
-    .header { text-align: center; margin-bottom: 30px; }
-    .clock { font-size: 3.5rem; font-weight: 700; letter-spacing: -1px; }
-    .date { color: var(--text-muted); font-size: 1.1rem; text-transform: capitalize; margin-top: 4px; }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px;
+            line-height: 1.5;
+        }
 
-    .search-box {
-      width: 100%;
-      max-width: 600px;
-      margin-bottom: 40px;
-    }
-    .search-box form { display: flex; gap: 8px; }
-    .search-box input {
-      flex: 1;
-      padding: 14px 20px;
-      font-size: 1rem;
-      border-radius: 12px;
-      border: 1px solid var(--card-border);
-      background-color: var(--card-bg);
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .search-box input:focus { border-color: var(--accent); }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-      width: 100%;
-      max-width: 1000px;
-    }
+        /* --- TOPPSEKTION (Klocka, Sök, Väder) --- */
+        .top-bar {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            align-items: center;
+            background: var(--bg-card);
+            padding: 20px 24px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
 
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 20px;
-    }
-    .card h3 {
-      font-size: 1rem;
-      color: var(--accent);
-      margin-bottom: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .card ul { list-style: none; }
-    .card li { margin-bottom: 10px; }
-    .card a {
-      color: var(--text);
-      text-decoration: none;
-      font-size: 0.95rem;
-      display: block;
-      transition: color 0.15s;
-    }
-    .card a:hover { color: var(--accent); }
+        .clock-box #time {
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-main);
+            line-height: 1.1;
+        }
 
-    .notes textarea {
-      width: 100%;
-      height: 120px;
-      background: transparent;
-      border: none;
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.9rem;
-      resize: vertical;
-      outline: none;
-    }
-  </style>
+        .clock-box #date {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            text-transform: capitalize;
+            margin-top: 4px;
+        }
+
+        .search-box form {
+            display: flex;
+            width: 100%;
+            gap: 8px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+        }
+
+        .weather-box {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 14px;
+            text-align: right;
+        }
+
+        .weather-icon {
+            font-size: 2.5rem;
+        }
+
+        .weather-temp {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .weather-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* --- HUVUDGRID --- */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 1.1fr 0.9fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- KNAPPAR --- */
+        .btn {
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #0f172a;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            color: #fff;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* --- SNABBLÄNKAR --- */
+        .categories-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .category-block {
+            background: var(--bg-input);
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .category-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .link-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .link-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border-radius: 6px;
+            border: 1px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .link-item:hover {
+            border-color: var(--border);
+            background: var(--bg-card-hover);
+        }
+
+        .link-item a {
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 8px 10px;
+            font-size: 0.92rem;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .link-favicon {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .delete-link-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .edit-mode .delete-link-btn {
+            display: inline-block;
+        }
+
+        /* --- SHL HOCKEY WIDGET --- */
+        .shl-tabs {
+            display: flex;
+            gap: 6px;
+            background: var(--bg-input);
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .shl-tab {
+            flex: 1;
+            text-align: center;
+            padding: 7px 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-muted);
+            border: none;
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        .shl-tab.active {
+            background: var(--accent);
+            color: #0f172a;
+        }
+
+        .shl-table-wrapper {
+            overflow-x: auto;
+        }
+
+        table.shl-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        table.shl-table th {
+            text-align: left;
+            padding: 8px 6px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        table.shl-table td {
+            padding: 7px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        table.shl-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Slutspels- och kvalstreck i SHL */
+        table.shl-table tr.line-top6 td {
+            border-bottom: 2px solid var(--success);
+        }
+        table.shl-table tr.line-playin td {
+            border-bottom: 2px dashed var(--warning);
+        }
+        table.shl-table tr.line-relegation td {
+            border-bottom: 2px solid var(--danger);
+        }
+
+        .team-pos {
+            font-weight: 700;
+            color: var(--text-muted);
+            width: 24px;
+            display: inline-block;
+        }
+
+        .team-points {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .match-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .match-day-header {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent);
+            margin-top: 6px;
+            font-weight: 700;
+        }
+
+        .match-card {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .match-teams {
+            font-weight: 500;
+        }
+
+        .match-time {
+            background: var(--bg-card);
+            color: var(--accent);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+        }
+
+        .shl-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            padding-top: 6px;
+            border-top: 1px solid var(--border);
+        }
+
+        .shl-footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* --- ANTECKNINGAR --- */
+        .notes-area {
+            width: 100%;
+            min-height: 320px;
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 0.95rem;
+            resize: vertical;
+            outline: none;
+            line-height: 1.5;
+        }
+
+        .notes-area:focus {
+            border-color: var(--accent);
+        }
+
+        .save-indicator {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        /* --- MODAL FÖR LÄNKAR &备份 --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 440px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        @media (max-width: 1100px) {
+            .main-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .weather-box {
+                justify-content: center;
+                text-align: center;
+            }
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <div class="header">
-    <div class="clock" id="clock">--:--</div>
-    <div class="date" id="date">Laddar datum...</div>
-  </div>
+<div class="container">
+    <!-- TOPPSEKTION: Klocka, Google-sök & Live-väder -->
+    <header class="top-bar">
+        <div class="clock-box">
+            <div id="time">00:00:00</div>
+            <div id="date">Laddar datum...</div>
+        </div>
 
-  <div class="search-box">
-    <form action="https://www.google.com/search" method="get">
-      <input type="text" name="q" placeholder="Sök på Google..." autofocus autocomplete="off">
-    </form>
-  </div>
+        <div class="search-box">
+            <form action="https://www.google.com/search" method="GET" target="_blank">
+                <input type="text" name="q" id="searchInput" placeholder="Sök på Google (tryck '/' för direktfokus)..." autocomplete="off">
+                <button type="submit" class="btn btn-primary">Sök</button>
+            </form>
+        </div>
 
-  <div class="grid">
-    <!-- Kategori: Dagligt -->
-    <div class="card">
-      <h3>Dagligt</h3>
-      <ul>
-        <li><a href="https://mail.google.com" target="_blank">Gmail</a></li>
-        <li><a href="https://calendar.google.com" target="_blank">Kalender</a></li>
-        <li><a href="https://bankid.com" target="_blank">BankID / Internetbank</a></li>
-        <li><a href="https://github.com" target="_blank">GitHub</a></li>
-      </ul>
+        <div class="weather-box" id="weatherBox">
+            <div class="weather-icon" id="weatherIcon">⛅</div>
+            <div>
+                <div class="weather-temp" id="weatherTemp">--°C</div>
+                <div class="weather-desc" id="weatherDesc">Hämtar väder...</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HUVUDGRID -->
+    <main class="main-grid">
+        
+        <!-- KOLUMN 1: Dynamiska Snabblänkar -->
+        <section class="card">
+            <div class="card-header">
+                <div class="card-title">🔗 Snabblänkar</div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="openLinkModal()">+ Ny länk</button>
+                    <button class="btn" id="editLinksBtn" onclick="toggleEditLinks()">Ändra</button>
+                    <button class="btn" onclick="exportData()" title="Exportera backup (JSON)">⬇ Backup</button>
+                    <button class="btn" onclick="document.getElementById('importFile').click()" title="Importera backup (JSON)">⬆ Ladda</button>
+                    <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
+                </div>
+            </div>
+            <div class="categories-container" id="linksContainer">
+                <!-- Renderas dynamiskt via JS -->
+            </div>
+        </section>
+
+        <!-- KOLUMN 2: SHL Hockey-widget -->
+        <section class="card">
+            <div class="card-header">
+                <div class="card-title">🏒 SHL Center <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">2026/2027</span></div>
+                <div class="shl-tabs">
+                    <button class="shl-tab active" id="tabGamesBtn" onclick="switchShlTab('games')">Matcher</button>
+                    <button class="shl-tab" id="tabStandingsBtn" onclick="switchShlTab('standings')">Tabell</button>
+                </div>
+            </div>
+
+            <!-- VY 1: Dagens & Kommande Matcher -->
+            <div id="shlGamesView">
+                <div class="match-list" id="shlMatchList">
+                    <!-- Renderas via JS -->
+                </div>
+            </div>
+
+            <!-- VY 2: SHL Tabell -->
+            <div id="shlStandingsView" style="display: none;">
+                <div class="shl-table-wrapper">
+                    <table class="shl-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Lag</th>
+                                <th title="Spelade matcher">M</th>
+                                <th title="Målskillnad">+/-</th>
+                                <th title="Poäng">P</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shlTableBody">
+                            <!-- Renderas via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; display:flex; gap: 12px;">
+                    <span><strong style="color:var(--success)">—</strong> Kvartsfinal (1–6)</span>
+                    <span><strong style="color:var(--warning)">--</strong> Åttondel (7–10)</span>
+                    <span><strong style="color:var(--danger)">—</strong> Kval (13–14)</span>
+                </div>
+            </div>
+
+            <div class="shl-footer">
+                <span id="shlStatusText">Säsong 26/27</span>
+                <div>
+                    <a href="https://www.shl.se/" target="_blank">SHL.se ↗</a> &nbsp;|&nbsp;
+                    <a href="https://stats.swehockey.se/" target="_blank">Swehockey ↗</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- KOLUMN 3: Anteckningar -->
+        <section class="card">
+            <div class="card-header">
+                <div class="card-title">📝 Anteckningar</div>
+                <span class="save-indicator" id="saveIndicator">Autosparad</span>
+            </div>
+            <textarea class="notes-area" id="quickNotes" placeholder="Skriv snabba minnesanteckningar, kom-ihåg eller utkast här... Allt sparas automatiskt i webbläsaren."></textarea>
+        </section>
+
+    </main>
+</div>
+
+<!-- MODAL: Lägg till ny länk -->
+<div class="modal-overlay" id="linkModal">
+    <div class="modal">
+        <div class="card-header">
+            <div class="card-title">Lägg till ny snabblänk</div>
+            <button class="btn" onclick="closeLinkModal()">✕</button>
+        </div>
+        <div class="form-group">
+            <label>Namn på länk</label>
+            <input type="text" id="linkTitleInput" placeholder="T.ex. Protokollgenerator eller ATG">
+        </div>
+        <div class="form-group">
+            <label>Webbadress (URL)</label>
+            <input type="text" id="linkUrlInput" placeholder="https://...">
+        </div>
+        <div class="form-group">
+            <label>Kategori (välj befintlig eller skriv en ny)</label>
+            <input type="text" id="linkCategoryInput" list="categoryList" placeholder="T.ex. Verktyg, Sport, Ekonomi">
+            <datalist id="categoryList"></datalist>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap: 8px; margin-top: 8px;">
+            <button class="btn" onclick="closeLinkModal()">Avbryt</button>
+            <button class="btn btn-primary" onclick="saveNewLink()">Spara länk</button>
+        </div>
     </div>
+</div>
 
-    <!-- Kategori: Nyheter & Media -->
-    <div class="card">
-      <h3>Nyheter & Media</h3>
-      <ul>
-        <li><a href="https://svt.se" target="_blank">SVT Nyheter</a></li>
-        <li><a href="https://omni.se" target="_blank">Omni</a></li>
-        <li><a href="https://youtube.com" target="_blank">YouTube</a></li>
-        <li><a href="https://reddit.com" target="_blank">Reddit</a></li>
-      </ul>
-    </div>
-
-    <!-- Kategori: Mina Verktyg -->
-    <div class="card">
-      <h3>Verktyg</h3>
-      <ul>
-        <li><a href="../swish/" target="_blank">Min Swish-generator</a></li>
-        <li><a href="https://yr.no" target="_blank">Yr Väder</a></li>
-        <li><a href="https://chatgpt.com" target="_blank">AI / Chatta</a></li>
-      </ul>
-    </div>
-
-    <!-- Kategori: Snabbanteckningar -->
-    <div class="card">
-      <h3>Snabbanteckningar</h3>
-      <div class="notes">
-        <textarea id="notePad" placeholder="Skriv något här... sparas automatiskt i webbläsaren."></textarea>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Klocka och datum
+<script>
+    /* =========================================================
+       1. KLOCKA & DATUM
+       ========================================================= */
     function updateClock() {
-      const now = new Date();
-      document.getElementById('clock').textContent = now.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
-      document.getElementById('date').textContent = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        const now = new Date();
+        document.getElementById('time').textContent = now.toLocaleTimeString('sv-SE', {
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+        document.getElementById('date').textContent = now.toLocaleDateString('sv-SE', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
     }
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Auto-save för anteckningar
-    const notePad = document.getElementById('notePad');
-    notePad.value = localStorage.getItem('dashboard_note') || '';
-    notePad.addEventListener('input', () => {
-      localStorage.setItem('dashboard_note', notePad.value);
+    // Kortkommando: Tryck "/" för att fokusera på Google-sökrutan
+    document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            document.getElementById('searchInput').focus();
+        }
     });
-  </script>
+
+    /* =========================================================
+       2. LIVE-VÄDER VIA OPEN-METEO (Katrineholm)
+       ========================================================= */
+    const WEATHER_CONFIG = {
+        city: 'Katrineholm',
+        lat: 58.9956,
+        lon: 16.2072
+    };
+
+    function getWeatherDescription(code) {
+        const codes = {
+            0: { text: 'Klart', icon: '☀️' },
+            1: { text: 'Mest klart', icon: '🌤️' },
+            2: { text: 'Halvklart', icon: '⛅' },
+            3: { text: 'Mulet', icon: '☁️' },
+            45: { text: 'Dimma', icon: '🌫️' },
+            48: { text: 'Rimfrost', icon: '🌫️' },
+            51: { text: 'Lätt duggregn', icon: '🌦️' },
+            53: { text: 'Duggregn', icon: '🌦️' },
+            61: { text: 'Lätt regn', icon: '🌧️' },
+            63: { text: 'Regn', icon: '🌧️' },
+            65: { text: 'Kraftigt regn', icon: '🌧️' },
+            71: { text: 'Lätt snöfall', icon: '🌨️' },
+            73: { text: 'Snöfall', icon: '❄️' },
+            75: { text: 'Kraftigt snöfall', icon: '❄️' },
+            80: { text: 'Regnskurar', icon: '🌦️' },
+            95: { text: 'Åska', icon: '⛈️' }
+        };
+        return codes[code] || { text: 'Växlande', icon: '🌡️' };
+    }
+
+    async function fetchWeather() {
+        try {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_CONFIG.lat}&longitude=${WEATHER_CONFIG.lon}&current=temperature_2m,weather_code,wind_speed_10m&wind_speed_unit=ms&timezone=Europe%2FBerlin`;
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data && data.current) {
+                const temp = Math.round(data.current.temperature_2m);
+                const wind = Math.round(data.current.wind_speed_10m);
+                const info = getWeatherDescription(data.current.weather_code);
+
+                document.getElementById('weatherIcon').textContent = info.icon;
+                document.getElementById('weatherTemp').textContent = `${temp}°C`;
+                document.getElementById('weatherDesc').textContent = `${WEATHER_CONFIG.city} • ${info.text} (${wind} m/s)`;
+            }
+        } catch (err) {
+            document.getElementById('weatherDesc').textContent = 'Kunde inte hämta väder';
+        }
+    }
+    fetchWeather();
+    setInterval(fetchWeather, 15 * 60 * 1000); // Uppdatera var 15:e minut
+
+    /* =========================================================
+       3. DYNAMISK LÄNKHANTERING (localStorage)
+       ========================================================= */
+    const DEFAULT_LINKS = [
+        { id: 1, title: 'Gmail', url: 'https://mail.google.com', category: 'Vardag & Verktyg' },
+        { id: 2, title: 'Google Kalender', url: 'https://calendar.google.com', category: 'Vardag & Verktyg' },
+        { id: 3, title: 'GitHub', url: 'https://github.com', category: 'Vardag & Verktyg' },
+        { id: 4, title: 'SHL.se', url: 'https://www.shl.se', category: 'Sport & Spel' },
+        { id: 5, title: 'Svenska Spel Sport', url: 'https://spela.svenskaspel.se', category: 'Sport & Spel' },
+        { id: 6, title: 'ATG', url: 'https://www.atg.se', category: 'Sport & Spel' },
+        { id: 7, title: 'Tradera', url: 'https://www.tradera.com', category: 'Handel & Forum' },
+        { id: 8, title: 'SweClockers', url: 'https://www.sweclockers.com', category: 'Handel & Forum' }
+    ];
+
+    let userLinks = JSON.parse(localStorage.getItem('dashboard_links')) || DEFAULT_LINKS;
+    let isEditMode = false;
+
+    function saveLinksToStorage() {
+        localStorage.setItem('dashboard_links', JSON.stringify(userLinks));
+    }
+
+    function renderLinks() {
+        const container = document.getElementById('linksContainer');
+        container.innerHTML = '';
+
+        // Gruppera efter kategori
+        const grouped = {};
+        userLinks.forEach(link => {
+            if (!grouped[link.category]) grouped[link.category] = [];
+            grouped[link.category].push(link);
+        });
+
+        // Uppdatera datalist i modalen
+        const datalist = document.getElementById('categoryList');
+        datalist.innerHTML = '';
+        Object.keys(grouped).forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            datalist.appendChild(opt);
+        });
+
+        // Rendera kategorikort
+        Object.keys(grouped).forEach(category => {
+            const block = document.createElement('div');
+            block.className = 'category-block';
+
+            const title = document.createElement('div');
+            title.className = 'category-title';
+            title.textContent = category;
+            block.appendChild(title);
+
+            const ul = document.createElement('ul');
+            ul.className = 'link-list';
+
+            grouped[category].forEach(link => {
+                const li = document.createElement('li');
+                li.className = 'link-item';
+
+                let domain = '';
+                try { domain = new URL(link.url).hostname; } catch (e) {}
+                const faviconUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=32` : '';
+
+                li.innerHTML = `
+                    <a href="${link.url}" target="_blank" rel="noopener">
+                        ${faviconUrl ? `<img src="${faviconUrl}" class="link-favicon" alt="">` : '🔗'}
+                        <span>${link.title}</span>
+                    </a>
+                    <button class="delete-link-btn" onclick="deleteLink(${link.id})" title="Ta bort länk">✕</button>
+                `;
+                ul.appendChild(li);
+            });
+
+            block.appendChild(ul);
+            container.appendChild(block);
+        });
+    }
+
+    function openLinkModal() {
+        document.getElementById('linkTitleInput').value = '';
+        document.getElementById('linkUrlInput').value = '';
+        document.getElementById('linkCategoryInput').value = '';
+        document.getElementById('linkModal').classList.add('active');
+        document.getElementById('linkTitleInput').focus();
+    }
+
+    function closeLinkModal() {
+        document.getElementById('linkModal').classList.remove('active');
+    }
+
+    function saveNewLink() {
+        const title = document.getElementById('linkTitleInput').value.trim();
+        let url = document.getElementById('linkUrlInput').value.trim();
+        const category = document.getElementById('linkCategoryInput').value.trim() || 'Övrigt';
+
+        if (!title || !url) {
+            alert('Fyll i både namn och webbadress.');
+            return;
+        }
+        if (!/^https?:\/\//i.test(url) && !url.startsWith('file://')) {
+            url = 'https://' + url;
+        }
+
+        userLinks.push({
+            id: Date.now(),
+            title,
+            url,
+            category
+        });
+
+        saveLinksToStorage();
+        renderLinks();
+        closeLinkModal();
+    }
+
+    function deleteLink(id) {
+        userLinks = userLinks.filter(l => l.id !== id);
+        saveLinksToStorage();
+        renderLinks();
+    }
+
+    function toggleEditLinks() {
+        isEditMode = !isEditMode;
+        const container = document.getElementById('linksContainer');
+        const btn = document.getElementById('editLinksBtn');
+        if (isEditMode) {
+            container.classList.add('edit-mode');
+            btn.textContent = 'Klar';
+            btn.classList.add('btn-primary');
+        } else {
+            container.classList.remove('edit-mode');
+            btn.textContent = 'Ändra';
+            btn.classList.remove('btn-primary');
+        }
+    }
+
+    renderLinks();
+
+    /* =========================================================
+       4. SHL CENTER (Tabell & Spelschema 2026/2027)
+       ========================================================= */
+    const SHL_STANDINGS = [
+        { pos: 1,  team: 'Färjestad BK',       gp: 8, diff: '+26', pts: 22 },
+        { pos: 2,  team: 'Frölunda HC',        gp: 8, diff: '+6',  pts: 17 },
+        { pos: 3,  team: 'IF Björklöven',      gp: 8, diff: '+2',  pts: 17 },
+        { pos: 4,  team: 'Skellefteå AIK',     gp: 8, diff: '+7',  pts: 15 },
+        { pos: 5,  team: 'Brynäs IF',          gp: 8, diff: '+5',  pts: 12 },
+        { pos: 6,  team: 'Rögle BK',           gp: 8, diff: '+2',  pts: 11 },
+        { pos: 7,  team: 'Örebro HK',          gp: 8, diff: '-4',  pts: 11 },
+        { pos: 8,  team: 'IF Malmö Redhawks',  gp: 7, diff: '-4',  pts: 10 },
+        { pos: 9,  team: 'Luleå HF',           gp: 8, diff: '-6',  pts: 10 },
+        { pos: 10, team: 'Växjö Lakers HC',    gp: 8, diff: '-5',  pts: 9  },
+        { pos: 11, team: 'Djurgårdens IF',     gp: 8, diff: '-6',  pts: 9  },
+        { pos: 12, team: 'HV 71',              gp: 8, diff: '-5',  pts: 8  },
+        { pos: 13, team: 'Timrå IK',           gp: 8, diff: '-7',  pts: 7  },
+        { pos: 14, team: 'Linköping HC',       gp: 7, diff: '-11', pts: 7  }
+    ];
+
+    const SHL_SCHEDULE = [
+        // Torsdag 15 oktober 2026
+        { date: '2026-10-15', time: '19:00', home: 'Brynäs IF', away: 'Djurgårdens IF' },
+        { date: '2026-10-15', time: '19:00', home: 'Färjestad BK', away: 'Luleå HF' },
+        { date: '2026-10-15', time: '19:00', home: 'IF Björklöven', away: 'Rögle BK' },
+        { date: '2026-10-15', time: '19:00', home: 'Linköping HC', away: 'Frölunda HC' },
+        { date: '2026-10-15', time: '19:00', home: 'IF Malmö Redhawks', away: 'Örebro HK' },
+        { date: '2026-10-15', time: '19:00', home: 'Timrå IK', away: 'HV 71' },
+        { date: '2026-10-15', time: '19:00', home: 'Växjö Lakers HC', away: 'Skellefteå AIK' },
+        // Lördag 17 oktober 2026
+        { date: '2026-10-17', time: '15:15', home: 'Luleå HF', away: 'HV 71' },
+        { date: '2026-10-17', time: '15:15', home: 'Rögle BK', away: 'Örebro HK' },
+        { date: '2026-10-17', time: '15:15', home: 'Frölunda HC', away: 'Skellefteå AIK' },
+        { date: '2026-10-17', time: '15:15', home: 'Djurgårdens IF', away: 'IF Malmö Redhawks' },
+        { date: '2026-10-17', time: '15:15', home: 'Linköping HC', away: 'Färjestad BK' },
+        { date: '2026-10-17', time: '18:00', home: 'Timrå IK', away: 'IF Björklöven' },
+        { date: '2026-10-17', time: '18:00', home: 'Brynäs IF', away: 'Växjö Lakers HC' },
+        // Tisdag 20 oktober 2026
+        { date: '2026-10-20', time: '19:00', home: 'HV 71', away: 'Linköping HC' },
+        { date: '2026-10-20', time: '19:00', home: 'Frölunda HC', away: 'Djurgårdens IF' },
+        // Lördag 24 oktober 2026
+        { date: '2026-10-24', time: '15:15', home: 'Linköping HC', away: 'Örebro HK' },
+        { date: '2026-10-24', time: '15:15', home: 'IF Malmö Redhawks', away: 'Timrå IK' },
+        { date: '2026-10-24', time: '15:15', home: 'IF Björklöven', away: 'Skellefteå AIK' },
+        { date: '2026-10-24', time: '18:00', home: 'HV 71', away: 'Frölunda HC' },
+        { date: '2026-10-24', time: '18:00', home: 'Luleå HF', away: 'Djurgårdens IF' },
+        { date: '2026-10-24', time: '18:00', home: 'Färjestad BK', away: 'Växjö Lakers HC' },
+        { date: '2026-10-24', time: '18:00', home: 'Brynäs IF', away: 'Rögle BK' }
+    ];
+
+    function renderShlStandings() {
+        const tbody = document.getElementById('shlTableBody');
+        tbody.innerHTML = '';
+
+        SHL_STANDINGS.forEach(row => {
+            const tr = document.createElement('tr');
+            if (row.pos === 6) tr.className = 'line-top6';
+            if (row.pos === 10) tr.className = 'line-playin';
+            if (row.pos === 12) tr.className = 'line-relegation';
+
+            tr.innerHTML = `
+                <td><span class="team-pos">${row.pos}</span></td>
+                <td style="font-weight: 500;">${row.team}</td>
+                <td>${row.gp}</td>
+                <td style="color: var(--text-muted);">${row.diff}</td>
+                <td class="team-points">${row.pts}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderShlMatches() {
+        const list = document.getElementById('shlMatchList');
+        list.innerHTML = '';
+
+        const todayStr = new Date().toISOString().split('T')[0];
+        
+        // Hitta dagens matcher
+        const todaysGames = SHL_SCHEDULE.filter(m => m.date === todayStr);
+        
+        // Hitta nästa kommande matchdag efter idag
+        const futureGames = SHL_SCHEDULE.filter(m => m.date > todayStr);
+        const nextDate = futureGames.length > 0 ? futureGames[0].date : null;
+        const nextDayGames = nextDate ? futureGames.filter(m => m.date === nextDate) : [];
+
+        if (todaysGames.length > 0) {
+            const header = document.createElement('div');
+            header.className = 'match-day-header';
+            header.textContent = `🔥 Dagens matcher (${todayStr})`;
+            list.appendChild(header);
+
+            todaysGames.forEach(m => {
+                list.appendChild(createMatchCard(m));
+            });
+        } else {
+            const noGame = document.createElement('div');
+            noGame.style.fontSize = '0.85rem';
+            noGame.style.color = 'var(--text-muted)';
+            noGame.textContent = 'Inga SHL-matcher idag.';
+            list.appendChild(noGame);
+        }
+
+        if (nextDayGames.length > 0) {
+            const nextHeader = document.createElement('div');
+            nextHeader.className = 'match-day-header';
+            nextHeader.style.marginTop = '12px';
+            nextHeader.textContent = `Kommande omgång (${nextDate})`;
+            list.appendChild(nextHeader);
+
+            nextDayGames.forEach(m => {
+                list.appendChild(createMatchCard(m));
+            });
+        }
+    }
+
+    function createMatchCard(match) {
+        const div = document.createElement('div');
+        div.className = 'match-card';
+        div.innerHTML = `
+            <span class="match-teams">${match.home} – ${match.away}</span>
+            <span class="match-time">${match.time}</span>
+        `;
+        return div;
+    }
+
+    function switchShlTab(tab) {
+        const gamesView = document.getElementById('shlGamesView');
+        const standingsView = document.getElementById('shlStandingsView');
+        const btnGames = document.getElementById('tabGamesBtn');
+        const btnStandings = document.getElementById('tabStandingsBtn');
+
+        if (tab === 'games') {
+            gamesView.style.display = 'block';
+            standingsView.style.display = 'none';
+            btnGames.classList.add('active');
+            btnStandings.classList.remove('active');
+        } else {
+            gamesView.style.display = 'none';
+            standingsView.style.display = 'block';
+            btnGames.classList.remove('active');
+            btnStandings.classList.add('active');
+        }
+    }
+
+    renderShlStandings();
+    renderShlMatches();
+
+    /* =========================================================
+       5. ANTECKNINGAR (Autosparande i localStorage)
+       ========================================================= */
+    const notesArea = document.getElementById('quickNotes');
+    const saveIndicator = document.getElementById('saveIndicator');
+
+    notesArea.value = localStorage.getItem('dashboard_notes') || '';
+
+    notesArea.addEventListener('input', () => {
+        saveIndicator.textContent = 'Sparar...';
+        localStorage.setItem('dashboard_notes', notesArea.value);
+        setTimeout(() => {
+            saveIndicator.textContent = 'Autosparad';
+        }, 500);
+    });
+
+    /* =========================================================
+       6. EXPORT & IMPORT AV INSTÄLLNINGAR (JSON)
+       ========================================================= */
+    function exportData() {
+        const payload = {
+            links: userLinks,
+            notes: notesArea.value,
+            exportedAt: new Date().toISOString()
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'dashboard-backup.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (Array.isArray(data.links)) {
+                    userLinks = data.links;
+                    saveLinksToStorage();
+                    renderLinks();
+                }
+                if (typeof data.notes === 'string') {
+                    notesArea.value = data.notes;
+                    localStorage.setItem('dashboard_notes', data.notes);
+                }
+                alert('Backup inläst!');
+            } catch (err) {
+                alert('Kunde inte läsa JSON-filen.');
+            }
+        };
+        reader.readAsText(file);
+    }
+</script>
+
 </body>
 </html>
