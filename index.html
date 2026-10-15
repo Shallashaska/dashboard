@@ -352,6 +352,9 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            max-height: 440px;
+            overflow-y: auto;
+            padding-right: 4px;
         }
 
         .match-day-header {
@@ -462,11 +465,11 @@
             border: 1px solid var(--border);
             border-radius: var(--radius);
             width: 100%;
-            max-width: 460px;
+            max-width: 500px;
             padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
         .form-group {
@@ -488,6 +491,20 @@
             color: var(--text-main);
             font-size: 0.95rem;
             outline: none;
+        }
+
+        .debug-log {
+            background: #070b14;
+            color: #38bdf8;
+            font-family: monospace;
+            font-size: 0.78rem;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            max-height: 150px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            display: none;
         }
 
         @media (max-width: 1100px) {
@@ -555,7 +572,7 @@
             <div class="categories-container" id="linksContainer"></div>
         </section>
 
-        <!-- KOLUMN 2: SHL Hockey-widget (Flashscore / FlashLive API) -->
+        <!-- KOLUMN 2: SHL Hockey-widget (FlashLive Sports API) -->
         <section class="card">
             <div class="card-header">
                 <div class="card-title">
@@ -563,8 +580,8 @@
                     <span id="shlLiveBadge" style="font-size:0.7rem; background:var(--bg-input); color:var(--text-muted); padding:2px 7px; border-radius:4px; border:1px solid var(--border); font-weight:normal;">Lokal data</span>
                 </div>
                 <div style="display:flex; gap:6px; align-items:center;">
-                    <button class="btn" onclick="refreshShlFromApi(true)" title="Hämta senaste från Flashscore API">🔄</button>
-                    <button class="btn" onclick="openApiModal()" title="Koppla RapidAPI-nyckel">⚙️</button>
+                    <button class="btn" onclick="refreshShlFromApi(true)" title="Uppdatera nu från FlashLive API">🔄</button>
+                    <button class="btn" onclick="openApiModal()" title="API-inställningar & Felsökning">⚙️</button>
                     <div class="shl-tabs">
                         <button class="shl-tab active" id="tabGamesBtn" onclick="switchShlTab('games')">Matcher</button>
                         <button class="shl-tab" id="tabStandingsBtn" onclick="switchShlTab('standings')">Tabell</button>
@@ -601,7 +618,7 @@
             </div>
 
             <div class="shl-footer">
-                <span id="shlStatusText">Klicka på ⚙️ för att lägga in API-nyckel</span>
+                <span id="shlStatusText">Klicka på ⚙️ för att koppla API</span>
                 <div>
                     <a href="https://www.flashscore.se/ishockey/sverige/shl/" target="_blank">Flashscore ↗</a> &nbsp;|&nbsp;
                     <a href="https://www.shl.se/" target="_blank">SHL.se ↗</a>
@@ -648,23 +665,27 @@
     </div>
 </div>
 
-<!-- MODAL 2: FlashLive Sports API-inställningar -->
+<!-- MODAL 2: FlashLive Sports API-inställningar & Felsökare -->
 <div class="modal-overlay" id="apiModal">
     <div class="modal">
         <div class="card-header">
             <div class="card-title">⚙️ FlashLive Sports (RapidAPI)</div>
             <button class="btn" onclick="closeApiModal()">✕</button>
         </div>
-        <p style="font-size:0.85rem; color:var(--text-muted);">
-            Klistra in din <code>X-RapidAPI-Key</code> för <strong>FlashLive Sports</strong>. Nyckeln sparas lokalt i din webbläsare (<code>localStorage</code>) och resultat cachas för att spara på dina API-anrop.
+        <p style="font-size:0.83rem; color:var(--text-muted);">
+            Klistra in din <code>X-RapidAPI-Key</code> nedan. Du kan klicka på <strong>"🔍 Testa & Felsök"</strong> för att se direkt i loggen att anslutningen till SHL fungerar.
         </p>
         <div class="form-group">
             <label>RapidAPI-nyckel (X-RapidAPI-Key)</label>
-            <input type="password" id="rapidApiKeyInput" placeholder="Klistra in nyckeln här...">
+            <input type="text" id="rapidApiKeyInput" placeholder="Klistra in nyckeln här...">
         </div>
-        <div style="display:flex; justify-content:flex-end; gap: 8px; margin-top: 8px;">
-            <button class="btn" onclick="closeApiModal()">Avbryt</button>
-            <button class="btn btn-primary" onclick="saveApiKey()">Spara & Hämta</button>
+        <div class="debug-log" id="apiDebugLog"></div>
+        <div style="display:flex; justify-content:space-between; gap: 8px; margin-top: 4px; flex-wrap:wrap;">
+            <button class="btn" onclick="testApiConnection()">🔍 Testa & Felsök</button>
+            <div style="display:flex; gap: 8px;">
+                <button class="btn" onclick="closeApiModal()">Stäng</button>
+                <button class="btn btn-primary" onclick="saveApiKey()">Spara & Uppdatera</button>
+            </div>
         </div>
     </div>
 </div>
@@ -874,12 +895,13 @@
     renderLinks();
 
     /* =========================================================
-       4. SHL CENTER (FlashLive Sports via RapidAPI + Smart Cache)
+       4. SHL CENTER (FlashLive Sports API – Enligt officiell doc)
        ========================================================= */
     const FLASHSCORE_CONFIG = {
         host: 'flashlive-sports.p.rapidapi.com',
-        sportId: 4, // 4 = Ishockey
-        locale: 'sv_SE'
+        sportId: 4,       // 4 = Hockey (enligt doc)
+        locale: 'en_INT', // Måste vara en supporterad locale, t.ex. en_INT eller en_GB
+        timezone: 2       // Svensk tid (UTC+1/+2)
     };
 
     const FALLBACK_STANDINGS = [
@@ -918,6 +940,7 @@
 
     function openApiModal() {
         document.getElementById('rapidApiKeyInput').value = localStorage.getItem('rapidapi_key') || '';
+        document.getElementById('apiDebugLog').style.display = 'none';
         document.getElementById('apiModal').classList.add('active');
         document.getElementById('rapidApiKeyInput').focus();
     }
@@ -926,12 +949,32 @@
         document.getElementById('apiModal').classList.remove('active');
     }
 
+    function logDebug(msg) {
+        const box = document.getElementById('apiDebugLog');
+        box.style.display = 'block';
+        box.textContent += msg + '\n';
+        box.scrollTop = box.scrollHeight;
+    }
+
+    async function testApiConnection() {
+        const key = document.getElementById('rapidApiKeyInput').value.trim();
+        const box = document.getElementById('apiDebugLog');
+        box.textContent = '';
+        if (!key) {
+            logDebug('❌ Klistra in din RapidAPI-nyckel först.');
+            return;
+        }
+        localStorage.setItem('rapidapi_key', key);
+        logDebug('⏳ Testar anslutning till FlashLive Sports...');
+        await refreshShlFromApi(true, true);
+    }
+
     function saveApiKey() {
         const key = document.getElementById('rapidApiKeyInput').value.trim();
         if (key) {
             localStorage.setItem('rapidapi_key', key);
             closeApiModal();
-            refreshShlFromApi(true);
+            refreshShlFromApi(true, false);
         } else {
             localStorage.removeItem('rapidapi_key');
             closeApiModal();
@@ -939,17 +982,49 @@
         }
     }
 
-    function formatGoalDiff(goalsStr) {
-        if (!goalsStr || !goalsStr.includes(':')) return goalsStr || '0';
-        const parts = goalsStr.split(':').map(Number);
-        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-            const diff = parts[0] - parts[1];
-            return diff > 0 ? `+${diff}` : `${diff}`;
+    function formatGoalDiff(row) {
+        if (row.GOAL_DIFFERENCE !== undefined) {
+            const d = Number(row.GOAL_DIFFERENCE);
+            return d > 0 ? `+${d}` : `${d}`;
         }
-        return goalsStr;
+        const goalsStr = row.GOALS || '';
+        if (goalsStr.includes(':')) {
+            const parts = goalsStr.split(':').map(Number);
+            if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                const diff = parts[0] - parts[1];
+                return diff > 0 ? `+${diff}` : `${diff}`;
+            }
+        }
+        return goalsStr || '0';
     }
 
-    async function refreshShlFromApi(force = false) {
+    function isSwedishShlTournament(t) {
+        const name = (t.NAME || t.LEAGUE_NAME || '').toUpperCase();
+        const country = (t.COUNTRY_NAME || '').toUpperCase();
+        const namePart1 = (t.NAME_PART_1 || '').toUpperCase();
+        const namePart2 = (t.NAME_PART_2 || '').toUpperCase();
+
+        const isSweden = country.includes('SWEDEN') || country.includes('SVERIGE') || namePart1.includes('SWEDEN') || name.includes('SWEDEN');
+        const isShl = namePart2 === 'SHL' || name === 'SHL' || name.includes(': SHL') || (isSweden && name.includes('SHL') && !name.includes('WOMEN') && !name.includes('SDHL'));
+        return isSweden && isShl;
+    }
+
+    function mapEventToMatch(ev) {
+        const startDate = new Date(ev.START_TIME * 1000);
+        const dateStr = startDate.toLocaleDateString('sv-SE');
+        const timeStr = startDate.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+        const hasScore = ev.HOME_SCORE_CURRENT !== undefined && ev.AWAY_SCORE_CURRENT !== undefined && ev.STAGE_TYPE !== 'SCHEDULED';
+        return {
+            date: dateStr,
+            time: timeStr,
+            home: ev.HOME_NAME || ev.HOME_PARTICIPANT || 'Hemmalag',
+            away: ev.AWAY_NAME || ev.AWAY_PARTICIPANT || 'Bortalag',
+            score: hasScore ? `${ev.HOME_SCORE_CURRENT} - ${ev.AWAY_SCORE_CURRENT}` : '',
+            status: ev.STAGE_TYPE || ev.STAGE || 'SCHEDULED'
+        };
+    }
+
+    async function refreshShlFromApi(force = false, verbose = false) {
         const apiKey = localStorage.getItem('rapidapi_key');
         const badge = document.getElementById('shlLiveBadge');
         const statusText = document.getElementById('shlStatusText');
@@ -961,15 +1036,15 @@
 
         const lastFetch = Number(localStorage.getItem('shl_last_fetch') || 0);
         const now = Date.now();
-        if (!force && (now - lastFetch < 60 * 60 * 1000)) {
+        if (!force && (now - lastFetch < 45 * 60 * 1000)) {
             const timeUpdated = new Date(lastFetch).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
             statusText.textContent = `Flashscore (Cache ${timeUpdated})`;
-            badge.textContent = 'Flashscore API';
+            badge.textContent = 'FlashLive API';
             badge.style.color = 'var(--success)';
             return;
         }
 
-        statusText.textContent = 'Hämtar från Flashscore...';
+        statusText.textContent = 'Hämtar från FlashLive...';
         badge.textContent = 'Synkar...';
         badge.style.color = 'var(--warning)';
 
@@ -979,104 +1054,136 @@
                 'x-rapidapi-host': FLASHSCORE_CONFIG.host
             };
 
-            // 1. Hämta dagens ishockeymatcher och leta efter SHL
-            const eventsUrl = `https://${FLASHSCORE_CONFIG.host}/v1/events/list?sport_id=${FLASHSCORE_CONFIG.sportId}&locale=${FLASHSCORE_CONFIG.locale}&indent_days=0&timezone=1`;
-            const eventsRes = await fetch(eventsUrl, { headers });
-            if (!eventsRes.ok) throw new Error(`HTTP ${eventsRes.status}`);
-            const eventsJson = await eventsRes.json();
-
-            let shlMatches = [];
             let stageId = localStorage.getItem('shl_stage_id') || null;
-            let tournamentId = localStorage.getItem('shl_tournament_id') || null;
+            let seasonId = localStorage.getItem('shl_season_id') || null;
+            let allFetchedMatches = [];
 
+            // STEG 1: Hämta dagens hockeymatcher (/v1/events/list)
+            const eventsUrl = `https://${FLASHSCORE_CONFIG.host}/v1/events/list?locale=${FLASHSCORE_CONFIG.locale}&sport_id=${FLASHSCORE_CONFIG.sportId}&timezone=${FLASHSCORE_CONFIG.timezone}&indent_days=0`;
+            if (verbose) logDebug('1. Anropar /v1/events/list (Hockey)...');
+            const eventsRes = await fetch(eventsUrl, { headers });
+
+            if (!eventsRes.ok) {
+                const errText = await eventsRes.text();
+                throw new Error(`HTTP ${eventsRes.status}: ${errText}`);
+            }
+
+            const eventsJson = await eventsRes.json();
             if (eventsJson && Array.isArray(eventsJson.DATA)) {
-                const shlTour = eventsJson.DATA.find(t => 
-                    (t.NAME && (t.NAME === 'SHL' || t.NAME.includes('SHL'))) && 
-                    (t.COUNTRY_NAME && (t.COUNTRY_NAME.includes('Sverige') || t.COUNTRY_NAME.includes('Sweden')))
-                );
-
+                const shlTour = eventsJson.DATA.find(isSwedishShlTournament);
                 if (shlTour) {
-                    stageId = shlTour.TOURNAMENT_STAGE_ID || shlTour.STAGE_ID || stageId;
-                    tournamentId = shlTour.TOURNAMENT_ID || tournamentId;
-                    if (stageId) localStorage.setItem('shl_stage_id', stageId);
-                    if (tournamentId) localStorage.setItem('shl_tournament_id', tournamentId);
+                    stageId = shlTour.TOURNAMENT_STAGE_ID || stageId;
+                    seasonId = shlTour.TOURNAMENT_SEASON_ID || shlTour.TOURNAMENT_ID || seasonId;
+                    if (verbose) logDebug(`✅ Hittade SHL i dagens matchlista! (Stage: ${stageId}, Season: ${seasonId})`);
 
-                    const todayStr = new Date().toLocaleDateString('sv-SE');
-                    shlMatches = (shlTour.EVENTS || []).map(ev => {
-                        const startDate = new Date(ev.START_TIME * 1000);
-                        const timeStr = startDate.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
-                        const hasScore = ev.HOME_SCORE_CURRENT !== undefined && ev.AWAY_SCORE_CURRENT !== undefined;
-                        return {
-                            date: todayStr,
-                            time: timeStr,
-                            home: ev.HOME_NAME,
-                            away: ev.AWAY_NAME,
-                            score: hasScore ? `${ev.HOME_SCORE_CURRENT} - ${ev.AWAY_SCORE_CURRENT}` : '',
-                            status: ev.STAGE_TYPE // LIVE, FINISHED, SCHEDULED
-                        };
-                    });
+                    const todaysShl = (shlTour.EVENTS || []).map(mapEventToMatch);
+                    allFetchedMatches.push(...todaysShl);
+                    if (verbose) logDebug(`✅ Hämtade ${todaysShl.length} matcher för idag.`);
+                } else if (verbose) {
+                    logDebug('ℹ️ Inga SHL-matcher i dagens lista, letar upp SHL via /v1/tournaments/list...');
                 }
             }
 
-            // 2. Om det är spelledigt idag och vi saknar SHL:s Stage/Tournament-ID, sök upp SHL direkt
-            if (!stageId || !tournamentId) {
-                const searchUrl = `https://${FLASHSCORE_CONFIG.host}/v1/search/multi-search?query=SHL&locale=${FLASHSCORE_CONFIG.locale}`;
-                const searchRes = await fetch(searchUrl, { headers });
-                if (searchRes.ok) {
-                    const searchJson = await searchRes.json();
-                    if (Array.isArray(searchJson)) {
-                        const foundShl = searchJson.find(item => 
-                            item.TYPE === 'tournament' && item.SPORT_ID === 4 && item.NAME.includes('SHL')
-                        );
-                        if (foundShl) {
-                            tournamentId = foundShl.ID;
-                            stageId = foundShl.STAGE_ID || foundShl.TOURNAMENT_STAGE_ID;
-                            if (tournamentId) localStorage.setItem('shl_tournament_id', tournamentId);
-                            if (stageId) localStorage.setItem('shl_stage_id', stageId);
+            // STEG 2: Om vi saknar stageId eller seasonId, hämta från /v1/tournaments/list (Workflow 3 i doc)
+            if (!stageId || !seasonId) {
+                const tourListUrl = `https://${FLASHSCORE_CONFIG.host}/v1/tournaments/list?locale=${FLASHSCORE_CONFIG.locale}&sport_id=${FLASHSCORE_CONFIG.sportId}`;
+                const tourRes = await fetch(tourListUrl, { headers });
+                if (tourRes.ok) {
+                    const tourJson = await tourRes.json();
+                    if (tourJson && Array.isArray(tourJson.DATA)) {
+                        const shlEntry = tourJson.DATA.find(isSwedishShlTournament);
+                        if (shlEntry) {
+                            seasonId = shlEntry.ACTUAL_TOURNAMENT_SEASON_ID || seasonId;
+                            if (Array.isArray(shlEntry.STAGES) && shlEntry.STAGES.length > 0) {
+                                const mainStage = shlEntry.STAGES.find(s => s.STAGE_NAME === 'Main') || shlEntry.STAGES[0];
+                                stageId = mainStage.STAGE_ID || stageId;
+                            }
+                            if (verbose) logDebug(`✅ Hittade SHL i /tournaments/list! (Stage: ${stageId}, Season: ${seasonId})`);
                         }
                     }
                 }
             }
 
-            // 3. Hämta aktuell SHL-tabell
-            if (stageId && tournamentId) {
-                const standUrl = `https://${FLASHSCORE_CONFIG.host}/v1/tournaments/standings?tournament_id=${tournamentId}&tournament_stage_id=${stageId}&standing_type=overall&locale=${FLASHSCORE_CONFIG.locale}`;
+            if (stageId) localStorage.setItem('shl_stage_id', stageId);
+            if (seasonId) localStorage.setItem('shl_season_id', seasonId);
+
+            // STEG 3: Hämta SHL-tabellen (/v1/tournaments/standings kräver tournament_season_id & tournament_stage_id)
+            if (stageId && seasonId) {
+                if (verbose) logDebug('2. Hämtar SHL-tabell (/v1/tournaments/standings)...');
+                const standUrl = `https://${FLASHSCORE_CONFIG.host}/v1/tournaments/standings?locale=${FLASHSCORE_CONFIG.locale}&standing_type=overall&tournament_stage_id=${stageId}&tournament_season_id=${seasonId}`;
                 const standRes = await fetch(standUrl, { headers });
+
                 if (standRes.ok) {
                     const standJson = await standRes.json();
-                    if (standJson && standJson.DATA && standJson.DATA[0] && standJson.DATA[0].ROWS) {
-                        const parsedStandings = standJson.DATA[0].ROWS.map(r => ({
+                    const rows = standJson?.DATA?.[0]?.ROWS;
+                    if (Array.isArray(rows) && rows.length > 0) {
+                        const parsedStandings = rows.map(r => ({
                             pos: r.RANKING,
                             team: r.TEAM_NAME,
                             gp: r.MATCHES_PLAYED,
-                            diff: formatGoalDiff(r.GOALS),
+                            diff: formatGoalDiff(r),
                             pts: r.POINTS
                         }));
                         localStorage.setItem('shl_cached_standings', JSON.stringify(parsedStandings));
+                        if (verbose) logDebug(`✅ SHL-tabell hämtad (${parsedStandings.length} lag)!`);
+                    }
+                } else if (verbose) {
+                    logDebug(`⚠️ Kunde inte hämta tabell (HTTP ${standRes.status})`);
+                }
+            }
+
+            // STEG 4: Hämta kommande omgångar via /v1/tournaments/fixtures (Workflow 3 i doc)
+            if (stageId) {
+                if (verbose) logDebug('3. Hämtar kommande SHL-matcher (/v1/tournaments/fixtures)...');
+                const fixUrl = `https://${FLASHSCORE_CONFIG.host}/v1/tournaments/fixtures?locale=${FLASHSCORE_CONFIG.locale}&tournament_stage_id=${stageId}&page=1`;
+                const fixRes = await fetch(fixUrl, { headers });
+                if (fixRes.ok) {
+                    const fixJson = await fixRes.json();
+                    let rawEvents = [];
+                    if (Array.isArray(fixJson.DATA)) {
+                        fixJson.DATA.forEach(item => {
+                            if (Array.isArray(item.EVENTS)) rawEvents.push(...item.EVENTS);
+                            else if (item.START_TIME) rawEvents.push(item);
+                        });
+                    }
+                    if (rawEvents.length > 0) {
+                        // Sortera stigande på starttid så närmaste matchdag kommer först
+                        rawEvents.sort((a, b) => a.START_TIME - b.START_TIME);
+                        const upcomingMapped = rawEvents.slice(0, 21).map(mapEventToMatch);
+                        allFetchedMatches.push(...upcomingMapped);
+                        if (verbose) logDebug(`✅ Hämtade ${upcomingMapped.length} kommande matcher!`);
                     }
                 }
             }
 
-            if (shlMatches.length > 0) {
-                // Behåll kommande reserv-omgångar men lägg in dagens live-matcher från Flashscore
-                const todayStr = new Date().toLocaleDateString('sv-SE');
-                const futureFallback = FALLBACK_SCHEDULE.filter(m => m.date > todayStr);
-                const combinedMatches = [...shlMatches, ...futureFallback];
-                localStorage.setItem('shl_cached_matches', JSON.stringify(combinedMatches));
+            if (allFetchedMatches.length > 0) {
+                // Ta bort ev. dubbletter (samma datum + hemmalag)
+                const uniqueMatches = [];
+                const seen = new Set();
+                allFetchedMatches.forEach(m => {
+                    const key = `${m.date}_${m.home}_${m.away}`;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        uniqueMatches.push(m);
+                    }
+                });
+                localStorage.setItem('shl_cached_matches', JSON.stringify(uniqueMatches));
             }
 
             localStorage.setItem('shl_last_fetch', Date.now().toString());
             loadShlData();
 
             const timeUpdated = new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
-            statusText.textContent = `Flashscore • Uppdaterad ${timeUpdated}`;
-            badge.textContent = 'Flashscore API';
+            statusText.textContent = `FlashLive • Uppdaterad ${timeUpdated}`;
+            badge.textContent = 'FlashLive API';
             badge.style.color = 'var(--success)';
+            if (verbose) logDebug('🎉 Klart! All SHL-data är nu uppdaterad.');
         } catch (err) {
-            console.error('Flashscore API fel:', err);
-            statusText.textContent = 'API-fel (kontrollera nyckel/prenumeration)';
-            badge.textContent = 'Offline-läge';
+            console.error('FlashLive API fel:', err);
+            statusText.textContent = 'API-fel (klicka på ⚙️ för felsökning)';
+            badge.textContent = 'API-fel';
             badge.style.color = 'var(--danger)';
+            if (verbose) logDebug(`❌ FEL: ${err.message}`);
         }
     }
 
@@ -1128,7 +1235,7 @@
             const noGame = document.createElement('div');
             noGame.style.fontSize = '0.85rem';
             noGame.style.color = 'var(--text-muted)';
-            noGame.textContent = 'Inga SHL-matcher registrerade idag.';
+            noGame.textContent = 'Inga SHL-matcher idag.';
             list.appendChild(noGame);
         }
 
@@ -1136,7 +1243,7 @@
             const nextHeader = document.createElement('div');
             nextHeader.className = 'match-day-header';
             nextHeader.style.marginTop = '12px';
-            nextHeader.textContent = `Kommande omgång (${nextDate})`;
+            nextHeader.textContent = `Nästa omgång (${nextDate})`;
             list.appendChild(nextHeader);
             nextDayGames.forEach(m => list.appendChild(createMatchCard(m)));
         }
@@ -1148,7 +1255,7 @@
         
         let rightBadge = `<span class="match-time">${match.time}</span>`;
         if (match.score) {
-            const isLive = match.status === 'LIVE';
+            const isLive = match.status === 'LIVE' || match.status === 2;
             const badgeClass = isLive ? 'match-time match-live' : 'match-time';
             const badgeStyle = isLive ? '' : 'color:var(--success); border-color:var(--success);';
             rightBadge = `<span class="${badgeClass}" style="${badgeStyle}">${isLive ? 'LIVE ' : ''}${match.score}</span>`;
@@ -1181,7 +1288,7 @@
     }
 
     loadShlData();
-    refreshShlFromApi(false);
+    refreshShlFromApi(false, false);
 
     /* =========================================================
        5. ANTECKNINGAR (Autosparande i localStorage)
@@ -1236,7 +1343,7 @@
                 }
                 if (data.rapidapi_key) {
                     localStorage.setItem('rapidapi_key', data.rapidapi_key);
-                    refreshShlFromApi(true);
+                    refreshShlFromApi(true, false);
                 }
                 alert('Backup inläst!');
             } catch (err) {
